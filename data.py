@@ -10,10 +10,6 @@ import torch
 import torchtext
 
 
-n = 20
-os.system("head -{0} ~/.cache/torch/text/datasets/Multi30k/train.en.raw > ~/.cache/torch/text/datasets/Multi30k/train.en".format(n))
-os.system("head -{0} ~/.cache/torch/text/datasets/Multi30k/train.de.raw > ~/.cache/torch/text/datasets/Multi30k/train.de".format(n))
-
 SRC_LANG = 'de'
 TGT_LANG = 'en'
 token_map = {}
