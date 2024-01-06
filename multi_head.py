@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, d_model, num_heads):
+    def __init__(self, d_model=512, num_heads=6):
         super().__init__()
         self.d_k = int(d_model / num_heads)
         self.multi_head = nn.ModuleList([Attention(d_model,self.d_k) for _ in range(num_heads)])
@@ -25,7 +25,7 @@ class MultiHeadAttention(nn.Module):
 
 
 class Attention(nn.Module):
-    def __init__(self, d_model, d_k):
+    def __init__(self, d_model=512, d_k=64):
         super().__init__()
         self.d_k = d_k
         self.w_q = nn.Linear(d_model, d_k)
@@ -45,7 +45,7 @@ class Attention(nn.Module):
         x = x / self.d_k ** 0.5
 
         if mask is not None:
-            x = x.masked_fill(mask == False, -1e-6)
+            x = x.masked_fill(mask == True, -1e-6)
 
         x = F.softmax(x, dim=-1)
         x = x.matmul(v)

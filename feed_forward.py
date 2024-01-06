@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 
 class FeedForward(nn.Module):
-    def __init__(self, d_model, d_ffn):
+    def __init__(self, d_model=512, d_ffn=2048):
         super().__init__()
         self.linear_1 = nn.Linear(d_model, d_ffn)
         self.linear_2 = nn.Linear(d_ffn, d_model)

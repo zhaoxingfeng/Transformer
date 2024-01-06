@@ -7,7 +7,7 @@ from feed_forward import FeedForward
 
 
 class Encoder(nn.Module):
-    def __init__(self, d_model, num_heads, num_layers, d_ffn):
+    def __init__(self, d_model=512, num_heads=8, num_layers=6, d_ffn=2048):
         super().__init__()
         self.layers = nn.ModuleList([EncoderLayer(d_model=d_model,
                                                   num_heads=num_heads,
@@ -25,7 +25,7 @@ class Encoder(nn.Module):
 
 
 class EncoderLayer(nn.Module):
-    def __init__(self, d_model, num_heads, d_ffn):
+    def __init__(self, d_model=512, num_heads=8, d_ffn=2048):
         super().__init__()
         self.multi_head = MultiHeadAttention(d_model=d_model, num_heads=num_heads)
         self.ffn = FeedForward(d_model=d_model, d_ffn=d_ffn)
