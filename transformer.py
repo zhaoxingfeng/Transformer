@@ -7,27 +7,58 @@ https://github.com/hyunwoongko/transformer/tree/master
 https://github.com/jayparks/transformer
 https://github.com/facebookresearch/llama
 """
+import math
 import torch
 from torch import nn
-from embedding import Embedding
 from encoder import Encoder
 from decoder import Decoder
 
 
+class TransformerEmbedding(nn.Module):
+    def __init__(self, vocab_size=8000, padding_idx=1, max_seq_len=256, d_model=512):
+        super().__init__()
+        self.word_emb = nn.Embedding(vocab_size, d_model, padding_idx=padding_idx)
+        self.pos_emb = self.get_pos_emb(max_seq_len, d_model)
+
+    def forward(self, x):
+        """
+        单词embedding+位置embedding
+        (batch_size, seq_len, d_model)
+        """
+        word_embed = self.word_emb(x)
+        _, seq_len = x.size()
+        pos_embed = self.pos_emb[:seq_len, :]
+        return word_embed + pos_embed
+    
+    def get_pos_emb(self, max_seq_len, d_model):
+        """
+        位置embedding
+        (max_seq_len, d_model)
+        """
+        lines = []
+        for pos in range(max_seq_len):
+            line = [math.sin(pos/10000**(j/d_model)) if j % 2 == 0 \
+                        else math.cos(pos/10000**((j-1)/d_model)) \
+                            for j in range(d_model)]
+            lines.append(line)
+        embed = torch.tensor(lines)
+        return embed
+
+
 class Transformer(nn.Module):
-    def __init__(self, vocab_src_size, vocab_tgt_size, src_pad_idx, tgt_pad_idx,
-                 max_seq_len, d_model, num_heads, num_layers, d_ffn):
+    def __init__(self, vocab_src_size=8000, vocab_tgt_size=8000, src_pad_idx=1, tgt_pad_idx=1,
+                 max_seq_len=256, d_model=512, num_heads=8, num_layers=6, d_ffn=2048):
         super().__init__()
         self.src_pad_idx = src_pad_idx
         self.tgt_pad_idx = tgt_pad_idx
-        self.encoder_emb = Embedding(vocab_size=vocab_src_size,
-                                     padding_idx=src_pad_idx,
-                                     max_seq_len=max_seq_len,
-                                     d_model=d_model)
-        self.decoder_emb = Embedding(vocab_size=vocab_tgt_size,
-                                     padding_idx=tgt_pad_idx,
-                                     max_seq_len=max_seq_len,
-                                     d_model=d_model)
+        self.encoder_emb = TransformerEmbedding(vocab_size=vocab_src_size,
+                                                padding_idx=src_pad_idx,
+                                                max_seq_len=max_seq_len,
+                                                d_model=d_model)
+        self.decoder_emb = TransformerEmbedding(vocab_size=vocab_tgt_size,
+                                                padding_idx=tgt_pad_idx,
+                                                max_seq_len=max_seq_len,
+                                                d_model=d_model)
         self.encoder = Encoder(d_model=d_model,
                                num_heads=num_heads,
                                num_layers=num_layers,
@@ -78,5 +109,5 @@ class Transformer(nn.Module):
         (batch_size, seq_len, seq_len)
         """
         batch_size, seq_len = seq.size()
-        mask = torch.triu(torch.ones(batch_size, seq_len, seq_len), diagonal=1)
+        mask = torch.triu(torch.ones(batch_size, seq_len, seq_len), diagonal=1) == 1
         return mask

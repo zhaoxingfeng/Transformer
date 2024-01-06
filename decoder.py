@@ -7,7 +7,7 @@ from feed_forward import FeedForward
 
 
 class Decoder(nn.Module):
-    def __init__(self, d_model, num_heads, num_layers, d_ffn):
+    def __init__(self, d_model=512, num_heads=8, num_layers=6, d_ffn=2048):
         super().__init__()
         self.layers = nn.ModuleList([DecoderLayer(d_model=d_model,
                                                   num_heads=num_heads,
@@ -25,7 +25,7 @@ class Decoder(nn.Module):
 
 
 class DecoderLayer(nn.Module):
-    def __init__(self, d_model, num_heads, d_ffn):
+    def __init__(self, d_model=512, num_heads=8, d_ffn=2048):
         super().__init__()
         self.multi_head1 = MultiHeadAttention(d_model=d_model, num_heads=num_heads)
         self.multi_head2 = MultiHeadAttention(d_model=d_model, num_heads=num_heads)
